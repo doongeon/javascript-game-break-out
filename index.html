@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>BREAK BRICK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/game-pad.css" />
+    <link rel="stylesheet" href="styles/game-gui.css" />
+    <link rel="stylesheet" href="styles/game-modal.css" />
+    <link rel="stylesheet" href="styles/buttons.css" />
+    <script src="classes/Map.js"></script>
+    <script src="classes/Ball.js"></script>
+    <script src="classes/BeepSound.js"></script>
+    <script src="classes/Bricks.js"></script>
+    <script src="classes/CollisionDetector.js"></script>
+    <script src="classes/Constants.js"></script>
+    <script src="classes/Controller.js"></script>
+    <script src="classes/Game.js"></script>
+    <script src="classes/Paddle.js"></script>
+    <script src="classes/Stage.js"></script>
+    <script src="classes/main.js"></script>
+  </head>
+  <body>
+    <div class="game-pad">
+      <div class="canvas-container">
+        <div class="game-console">
+          <div class="game-status">
+            <div id="life"></div>
+            <div id="round"></div>
+            <div id="bricks"></div>
+          </div>
+        </div>
+        <canvas id="gameGui" class="game-gui"></canvas>
+        <div id="stars"></div>
+        <div id="gameModal" class="game-modal">
+          <div id="gameModalMessage" class="game-modal__msg">break brick</div>
+          <div class="game-modal__btn-wrap">
+            <div id="resumeBtn" class="game-modal__btn">resume</div>
+            <div id="startBtn" class="game-modal__btn">start</div>
+          </div>
+        </div>
+      </div>
+      <div class="buttons-wrap">
+        <div class="arrow-btn">
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+        </div>
+        <div class="circle-btn">
+          <div class="circle-btn-item"></div>
+          <div class="circle-btn-item"></div>
+          <div class="circle-btn-item"></div>
+          <div class="circle-btn-item" id="pauseBtn">
+            <span>pause</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script type="module" src="./classes/main.js"></script>
+
+  <!-- <script>
+    const PADDLE_SPEED = 7;
+    const PADDLE_WIDTH = 150;
+    const PADDLE_HEIGHT = 10;
+    const PADDLE_COLOR = "white";
+    const BALL_SPEED = 7;
+    const BALL_RADIUS = 8;
+    const BALL_COLOR = "tomato";
+    const MAX_BALL_DX = 5.5;
+    const CANVAS_WIDTH = 600;
+    const CANVAS_HEIGHT = 800;
+    const BRICK_BORDER_RADIUS = 5;
+    const BRICKS_PER_ROW = 25;
+    const BRICKS_PER_COLUMN = 15;
+    const FINAL_ROUND = 3;
+  </script>
+  <script>
+    const BRICK_COLOR = {
+      1: "rgba(57, 255, 20, 1)",
+      2: "rgba(255, 38, 231, 1)",
+      3: "rgba(255, 129, 25, 1)",
+      4: "rgba(47, 255, 255, 1)",
+      5: "rgba(255, 255, 0, 1)",
+    };
+
+    const testMap = [[1]];
+
+    // 15 * 25
+    const MAPS = [
+      testMap, // map starts from index 1
+      testMap,
+      testMap,
+      testMap,
+      [
+        [
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 3, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 0, 4, 4, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 5, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 1,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0,
+          2, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0,
+          2, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0,
+          2, 0,
+        ],
+      ],
+      [
+        [
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 4, 4, 5, 5, 1, 1, 2, 2, 3, 3, 0, 0, 4, 4, 5, 5, 1, 1, 2, 2, 3, 3,
+          0, 0,
+        ],
+        [
+          0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 0, 0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 0, 0,
+          4, 0,
+        ],
+        [
+          0, 4, 4, 5, 5, 1, 1, 2, 2, 3, 3, 0, 0, 4, 4, 5, 5, 1, 1, 2, 2, 3, 3,
+          0, 0,
+        ],
+        [
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 4, 4, 5, 5, 1, 1, 2, 2, 3, 3, 0, 0, 4, 4, 5, 5, 1, 1, 2, 2, 3, 3,
+          0, 0,
+        ],
+        [
+          0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 0, 0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 0, 0,
+          4, 0,
+        ],
+      ],
+      [
+        [
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 2, 2, 1, 1, 3, 3, 4, 4, 5, 5, 2, 2, 1, 1, 3, 3, 4, 4, 5, 5, 2, 2,
+          0, 0,
+        ],
+        [
+          0, 3, 0, 2, 0, 4, 0, 5, 0, 1, 0, 3, 0, 2, 0, 4, 0, 5, 0, 1, 0, 3, 0,
+          0, 0,
+        ],
+        [
+          0, 4, 4, 3, 3, 5, 5, 1, 1, 2, 2, 4, 4, 3, 3, 5, 5, 1, 1, 2, 2, 4, 4,
+          0, 0,
+        ],
+        [
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 0, 5, 5, 4, 4, 2, 2, 3, 3, 1, 1, 5, 5, 4, 4, 2, 2, 3, 3, 1, 1, 5,
+          5, 0,
+        ],
+        [
+          0, 0, 1, 0, 5, 0, 3, 0, 2, 0, 4, 0, 1, 0, 5, 0, 3, 0, 2, 0, 4, 0, 1,
+          0, 0,
+        ],
+        [
+          0, 0, 2, 2, 1, 1, 4, 4, 5, 5, 3, 3, 2, 2, 1, 1, 4, 4, 5, 5, 3, 3, 2,
+          2, 0,
+        ],
+        [
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 3, 3, 2, 2, 1, 1, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 5, 5, 4, 4, 3, 3,
+          0, 0,
+        ],
+        [
+          0, 4, 0, 3, 0, 5, 0, 1, 0, 2, 0, 4, 0, 3, 0, 5, 0, 1, 0, 2, 0, 4, 0,
+          0, 0,
+        ],
+        [
+          0, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 5, 5,
+          0, 0,
+        ],
+        [
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0,
+        ],
+        [
+          0, 0, 2, 2, 3, 3, 4, 4, 5, 5, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 1, 1, 2,
+          2, 0,
+        ],
+        [
+          0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 1,
+          0, 0,
+        ],
+      ],
+    ];
+  </script>
+  <script>
+    class Paddle {
+      size = { width: PADDLE_WIDTH, height: PADDLE_HEIGHT };
+      x = CANVAS_WIDTH / 2 - this.size.width / 2;
+      y = CANVAS_HEIGHT - 100;
+      color = PADDLE_COLOR;
+      speed = PADDLE_SPEED;
+      prevX = this.x;
+
+      constructor(ctx) {
+        this.ctx = ctx;
+      }
+
+      moveRight() {
+        if (this.x + this.size.width >= CANVAS_WIDTH) return;
+        this.prevX = this.x;
+        this.x += PADDLE_SPEED;
+      }
+
+      moveLeft() {
+        if (this.x <= 0) return;
+        this.prevX = this.x;
+        this.x -= PADDLE_SPEED;
+      }
+
+      draw() {
+        this.ctx.beginPath();
+        this.ctx.rect(this.x, this.y, this.size.width, this.size.height);
+        this.ctx.fillStyle = this.color;
+        this.ctx.fill();
+        this.ctx.closePath();
+      }
+    }
+  </script>
+  <script>
+    class Ball {
+      dx = 0;
+      dy = BALL_SPEED;
+      size = { radius: BALL_RADIUS };
+      x = CANVAS_WIDTH / 2;
+      y = CANVAS_HEIGHT / 2;
+      color = BALL_COLOR;
+      status = {
+        fixed: true,
+      };
+
+      constructor(ctx, paddle) {
+        this.ctx = ctx;
+        this.paddle = paddle;
+      }
+
+      draw() {
+        if (this.status.fixed) {
+          this.fixOnPaddle();
+        }
+
+        this.ctx.beginPath();
+        this.ctx.arc(this.x, this.y, this.size.radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = this.color;
+        this.ctx.fill();
+        this.ctx.closePath();
+
+        this.handleWallCollision();
+        this.setNextPosition();
+      }
+
+      fixOnPaddle() {
+        this.status.fixed = true;
+        this.stop();
+        this.x = this.paddle.x + this.paddle.size.width / 2;
+        this.y = this.paddle.y - this.size.radius - 10;
+      }
+
+      shoot() {
+        this.status.fixed = false;
+        this.dy = -BALL_SPEED;
+      }
+
+      handleWallCollision() {
+        // when the ball hits left or right
+        if (
+          this.x + this.size.radius >= CANVAS_WIDTH ||
+          this.x - this.size.radius <= 0
+        ) {
+          this.dx = -this.dx;
+        }
+
+        // when the ball hits the top
+        if (this.y - this.size.radius <= 0) this.dy = -this.dy;
+      }
+
+      setNextPosition() {
+        this.x += this.dx;
+        this.y += this.dy;
+      }
+
+      stop() {
+        this.dx = 0;
+        this.dy = 0;
+      }
+    }
+  </script>
+  <script>
+    class BeepSound {
+      constructor(freq) {
+        const AudioContext = window.AudioContext;
+        this.freq = freq;
+        this.audioCtx = new AudioContext();
+      }
+
+      getOscillator() {
+        const oscillator = this.audioCtx.createOscillator();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(
+          this.freq,
+          this.audioCtx.currentTime
+        );
+        oscillator.connect(this.audioCtx.destination);
+
+        return oscillator;
+      }
+
+      beep() {
+        const oscillator = this.getOscillator();
+        oscillator.start();
+        setTimeout(() => {
+          oscillator.stop();
+        }, 100);
+      }
+    }
+  </script>
+  <script>
+    class Brick {
+      cracked = false;
+
+      constructor(ctx, position, size, color) {
+        this.ctx = ctx;
+        this.x = position.x;
+        this.y = position.y;
+        this.size = size;
+        this.color = color;
+      }
+
+      draw() {
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x + BRICK_BORDER_RADIUS, this.y); // 좌상단
+        this.ctx.lineTo(this.x + this.size.width - BRICK_BORDER_RADIUS, this.y); // 우상단
+        this.ctx.quadraticCurveTo(
+          this.x + this.size.width,
+          this.y,
+          this.x + this.size.width,
+          this.y + BRICK_BORDER_RADIUS
+        ); // 우상단 모서리
+        this.ctx.lineTo(
+          this.x + this.size.width,
+          this.y + this.size.height - BRICK_BORDER_RADIUS
+        ); // 우하단
+        this.ctx.quadraticCurveTo(
+          this.x + this.size.width,
+          this.y + this.size.height,
+          this.x + this.size.width - BRICK_BORDER_RADIUS,
+          this.y + this.size.height
+        ); // 우하단 모서리
+        this.ctx.lineTo(
+          this.x + BRICK_BORDER_RADIUS,
+          this.y + this.size.height
+        ); // 좌하단
+        this.ctx.quadraticCurveTo(
+          this.x,
+          this.y + this.size.height,
+          this.x,
+          this.y + this.size.height - BRICK_BORDER_RADIUS
+        ); // 좌하단 모서리
+        this.ctx.lineTo(this.x, this.y + BRICK_BORDER_RADIUS); // 좌상단
+        this.ctx.quadraticCurveTo(
+          this.x,
+          this.y,
+          this.x + BRICK_BORDER_RADIUS,
+          this.y
+        ); // 좌상단 모서리
+
+        this.ctx.fillStyle = this.color;
+        this.ctx.fill();
+        this.ctx.closePath();
+      }
+    }
+  </script>
+  <script>
+    class CollisionDetector {
+      beepSound = new BeepSound(400);
+
+      constructor(ball, paddle, stage) {
+        this.ball = ball;
+        this.paddle = paddle;
+        this.stage = stage;
+      }
+
+      detect() {
+        return {
+          paddle: this.detectPaddleCollision(),
+          brick: this.detectBrickCollision(),
+          falldown: this.detectBallFalldown(),
+        };
+      }
+
+      detectPaddleCollision() {
+        const paddleLeftEdge = this.paddle.x;
+        const paddleRightEdge = this.paddle.x + this.paddle.size.width;
+        if (
+          this.ball.x + this.ball.size.radius >= paddleLeftEdge &&
+          this.ball.x - this.ball.size.radius <= paddleRightEdge &&
+          this.ball.y + this.ball.size.radius >= this.paddle.y &&
+          this.ball.y - this.ball.size.radius <=
+            this.paddle.y + this.paddle.size.height
+        ) {
+          this.setBallMovementOnHitPaddle();
+
+          return true;
+        }
+
+        return false;
+      }
+
+      setBallMovementOnHitPaddle() {
+        const normalizedCollisionPosition =
+          (this.ball.x - this.paddle.x - this.paddle.size.width / 2) /
+          (this.paddle.size.width / 2);
+
+        let newDx = this.ball.dx + this.ball.dy * normalizedCollisionPosition;
+        if (Math.abs(newDx) > MAX_BALL_DX)
+          newDx = (MAX_BALL_DX * Math.abs(newDx)) / newDx;
+        const newDy = Math.sqrt(BALL_SPEED * BALL_SPEED - newDx * newDx);
+
+        // console.log("new dx:  " + newDx);
+        // console.log("new dy : " + newDy);
+
+        this.ball.dx = newDx;
+        this.ball.dy = -newDy;
+
+        this.ball.y = this.paddle.y - this.ball.size.radius;
+      }
+
+      detectBrickCollision() {
+        let collision = false;
+
+        for (let i = 0; i < this.stage.rowCount; i++) {
+          for (let j = 0; j < this.stage.columnCount; j++) {
+            const brick = this.stage.bricks[i][j];
+            if (!this.stage.bricks[i][j]) continue;
+            if (brick.cracked) continue;
+            if (
+              this.ball.x + this.ball.size.radius > brick.x &&
+              this.ball.x - this.ball.size.radius <
+                brick.x + brick.size.width &&
+              this.ball.y - this.ball.size.radius <
+                brick.y + brick.size.height &&
+              this.ball.y + this.ball.size.radius > brick.y
+            ) {
+              this.setBallMovementOnHitBrick(brick);
+              this.beepSound.beep();
+              brick.cracked = true;
+              collision = true;
+            }
+          }
+        }
+
+        return collision;
+      }
+
+      setBallMovementOnHitBrick(brick) {
+        const overlapLeft = this.ball.x + this.ball.size.radius - brick.x;
+        const overlapRight =
+          brick.x + brick.size.width - (this.ball.x - this.ball.size.radius);
+        const overlapTop = this.ball.y + this.ball.size.radius - brick.y;
+        const overlapBottom =
+          brick.y + brick.size.height - (this.ball.y - this.ball.size.radius);
+
+        const minOverlapX = Math.min(overlapLeft, overlapRight);
+        const minOverlapY = Math.min(overlapTop, overlapBottom);
+
+        if (minOverlapX < minOverlapY) {
+          // Horizontal collision
+          this.ball.dx = -this.ball.dx;
+
+          // avoid ball sticking
+          if (overlapLeft < overlapRight) {
+            this.ball.x = brick.x - this.ball.size.radius;
+          } else {
+            this.ball.x = brick.x + brick.size.width + this.ball.size.radius;
+          }
+        } else {
+          // Vertical collision
+          this.ball.dy = -this.ball.dy;
+
+          // avoid ball sticking
+          if (overlapTop < overlapBottom) {
+            this.ball.y = brick.y - this.ball.size.radius;
+          } else {
+            this.ball.y = brick.y + brick.size.height + this.ball.size.radius;
+          }
+        }
+      }
+
+      detectBallFalldown() {
+        if (this.ball.y - this.ball.size.radius > CANVAS_HEIGHT) {
+          this.ball.fixOnPaddle();
+          return true;
+        }
+        return false;
+      }
+    }
+  </script>
+  <script>
+    class Controller {
+      rightPressed = false;
+      leftPressed = false;
+      spacePressed = false;
+
+      constructor() {
+        this.keyDownHandler = this.keyDownHandler.bind(this);
+        this.keyUpHandler = this.keyUpHandler.bind(this);
+        document.addEventListener("keydown", this.keyDownHandler);
+        document.addEventListener("keyup", this.keyUpHandler);
+      }
+
+      keyDownHandler(e) {
+        if (e.code === "ArrowRight") {
+          this.rightPressed = true;
+        }
+        if (e.code === "ArrowLeft") {
+          this.leftPressed = true;
+        }
+        if (e.code === "Space") {
+          e.preventDefault();
+          this.spacePressed = true;
+        }
+      }
+
+      keyUpHandler(e) {
+        if (e.code === "ArrowRight") {
+          this.rightPressed = false;
+        }
+        if (e.code === "ArrowLeft") {
+          this.leftPressed = false;
+        }
+        if (e.code === "Space") {
+          this.spacePressed = false;
+        }
+      }
+
+      free() {
+        document.removeEventListener("keydown", this.keyDownHandler);
+        document.removeEventListener("keyup", this.keyUpHandler);
+      }
+    }
+  </script>
+  <script>
+    class Stage {
+      bricks = [];
+
+      constructor(ctx, map) {
+        this.ctx = ctx;
+        this.map = map;
+        this.rowCount = this.map.length;
+        this.columnCount = this.map[0].length;
+        this.bricks = this.getBricks(map);
+      }
+
+      getBricks(map) {
+        const bricks = [];
+        for (let i = 0; i < this.rowCount; i++) {
+          bricks[i] = [];
+          for (let j = 0; j < this.columnCount; j++) {
+            if (map[i][j] === 0) continue;
+
+            bricks[i][j] = new Brick(
+              this.ctx,
+              {
+                x: (CANVAS_WIDTH / this.columnCount) * j,
+                y:
+                  (i * CANVAS_HEIGHT) / 3 / this.rowCount +
+                  CANVAS_HEIGHT * 0.05,
+              },
+              {
+                width: CANVAS_WIDTH / (this.columnCount + 0.5),
+                height: CANVAS_HEIGHT / 3 / (this.rowCount + 0.5),
+              }, //@ts-ignore
+              BRICK_COLOR[map[i][j]]
+            );
+          }
+        }
+
+        return bricks;
+      }
+
+      drawStage() {
+        for (let i = 0; i < this.rowCount; i++) {
+          for (let j = 0; j < this.columnCount; j++) {
+            if (!this.bricks[i][j]) continue;
+            if (this.bricks[i][j].cracked) continue;
+            this.bricks[i][j].draw();
+          }
+        }
+      }
+
+      getLeftBricks() {
+        let total = 0;
+        for (let i = 0; i < this.rowCount; i++) {
+          for (let j = 0; j < this.columnCount; j++) {
+            if (!this.bricks[i][j]) continue;
+            if (this.bricks[i][j].cracked) continue;
+
+            total += 1;
+          }
+        }
+
+        return total;
+      }
+    }
+  </script>
+  <script>
+    class Game {
+      controller = new Controller();
+      status = {
+        start: false,
+        round: 1,
+        life: 3,
+        clear: false,
+      };
+
+      constructor(ctx, gameCallback) {
+        this.ctx = ctx;
+        this.stage = new Stage(this.ctx, MAPS[1]);
+        this.paddle = new Paddle(ctx);
+        this.ball = new Ball(ctx, this.paddle);
+        this.collisionDetector = new CollisionDetector(
+          this.ball,
+          this.paddle,
+          this.stage
+        );
+        this.gameCallback = gameCallback;
+      }
+
+      run() {
+        this.status.start = true;
+        this.status.clear = false;
+        this.resetGame();
+        this.writeRound();
+        this.writeLife();
+        this.writeLeftBricks();
+        this.play();
+      }
+
+      play() {
+        const interval = setInterval(() => {
+          if (!this.status.start) return;
+
+          this.draw();
+          const collision = this.collisionDetector.detect();
+
+          if (this.controller.leftPressed) this.moveLeft();
+          if (this.controller.rightPressed) this.moveRight();
+          if (this.controller.spacePressed) this.shootBall();
+          if (collision.falldown) this.discountLife();
+          if (collision.brick) this.writeLeftBricks();
+          if (this.status.round === FINAL_ROUND && this.getLeftBricks() < 1)
+            this.winGame();
+          if (this.getLeftBricks() < 1) this.nextStage();
+          if (this.status.life < 1) this.loseGame();
+
+          console.log("frame");
+        }, 16);
+
+        this.interval = interval;
+      }
+
+      draw() {
+        this.clearCanvas();
+        this.ball.draw();
+        this.paddle.draw();
+        this.stage.drawStage();
+      }
+
+      clearCanvas() {
+        this.ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      }
+
+      moveLeft() {
+        if (!this.status.start) return;
+        this.paddle.moveLeft();
+      }
+
+      moveRight() {
+        if (!this.status.start) return;
+        this.paddle.moveRight();
+      }
+
+      shootBall() {
+        if (!this.status.start) return;
+        this.ball.shoot();
+      }
+
+      getLeftBricks() {
+        return this.stage.getLeftBricks();
+      }
+
+      resetGame() {
+        this.status.life = 3;
+        this.status.round = 1;
+      }
+
+      pauseGame() {
+        this.status.start = false;
+        clearInterval(this.interval);
+      }
+
+      resumeGame() {
+        this.status.start = true;
+        this.play();
+      }
+
+      winGame() {
+        this.status.clear = true;
+        clearInterval(this.interval);
+        this.gameCallback(this.status);
+      }
+
+      loseGame() {
+        this.status.start = false;
+        clearInterval(this.interval);
+        this.gameCallback(this.status);
+      }
+
+      nextStage() {
+        if (!this.status.start) return;
+        if (this.status.round === FINAL_ROUND) return;
+
+        this.stage.drawStage(); // erase last brick
+        this.ball.stop();
+        this.status.start = false; // to avoid running fram on background
+        this.ball.fixOnPaddle();
+        this.status.round += 1;
+        this.stage = new Stage(this.ctx, MAPS[this.status.round]);
+        this.collisionDetector = new CollisionDetector(
+          this.ball,
+          this.paddle,
+          this.stage
+        );
+
+        // start next stage after 500ms
+        setTimeout(() => {
+          this.status.start = true;
+          this.writeRound();
+          this.writeLeftBricks();
+        }, 500);
+      }
+
+      discountLife() {
+        this.status.life -= 1;
+        this.writeLife();
+      }
+
+      writeRound() {
+        const roundWindow = document.getElementById("round");
+        if (!roundWindow) return;
+
+        roundWindow.innerText = `round: ${this.status.round}`;
+      }
+
+      writeLife() {
+        const lifeWindow = document.getElementById("life");
+        if (!lifeWindow) return;
+
+        lifeWindow.innerText = "life: " + this.status.life;
+      }
+
+      writeLeftBricks() {
+        const leftBricksWindow = document.getElementById("bricks");
+        if (!leftBricksWindow) return;
+
+        leftBricksWindow.innerText = "bricks: " + this.getLeftBricks();
+      }
+
+      cleanup() {
+        this.controller.free();
+        clearInterval(this.interval);
+      }
+    }
+  </script>
+  <script>
+    let gameStart = false;
+    let gamePause = false;
+    let gameClear = false;
+    let gameModlMessage = "break brick";
+    let game = null;
+
+    const canvas = document.getElementById("gameGui");
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
+    const context = canvas.getContext("2d");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const startBtn = document.getElementById("startBtn");
+    const resumeBtn = document.getElementById("resumeBtn");
+    const gameModal = document.getElementById("gameModal");
+    const gameModalMessage = document.getElementById("gameModalMessage");
+
+    const onClickPause = () => {
+      if (!gameStart) return;
+      gameModalMessage.innerText = "pause";
+      gamePause = true;
+      setGameStart(false);
+      game.pauseGame();
+    };
+    pauseBtn.addEventListener("click", onClickPause);
+
+    const onClickStart = () => {
+      if (gameStart) return;
+      setGameStart(true);
+      game = new Game(context, (status) => {
+        console.log(status);
+        setGameStart(false);
+        if (status.clear) {
+          gameModalMessage.innerText = "win!";
+          startBtn.innerText = "again?";
+        } else {
+          gameModalMessage.innerText = "lose...";
+          startBtn.innerText = "restart";
+        }
+      });
+      game.run();
+    };
+    startBtn.addEventListener("click", onClickStart);
+
+    const onClickResume = () => {
+      if (gameStart) return;
+      if (!gamePause) return;
+      gamePause = false;
+      setGameStart(true);
+      game.resumeGame();
+    };
+    resumeBtn.addEventListener("click", onClickResume);
+
+    const setGameStart = (gameStartState) => {
+      gameStart = gameStartState;
+      renderModal();
+      renderPauseBtn();
+      renderStartBtn();
+    };
+
+    const renderModal = () => {
+      if (!gameStart) {
+        gameModal.style.visibility = "visible";
+      } else {
+        gameModal.style.visibility = "hidden";
+      }
+    };
+
+    const renderPauseBtn = () => {
+      if (gamePause) {
+        resumeBtn.style.display = "block";
+      } else {
+        resumeBtn.style.display = "none";
+      }
+    };
+
+    const renderStartBtn = () => {
+      if (gamePause) {
+        startBtn.style.display = "none";
+      } else {
+        startBtn.style.display = "block";
+      }
+    };
+
+    const render = () => {
+      renderModal();
+      renderStartBtn();
+      renderPauseBtn();
+    };
+
+    render();
+  </script>
+  <script>
+    const star = document.getElementById("stars");
+    star.innerHTML = [...Array(100)]
+      .map((__, index) => {
+        return `<div
+          class="star"
+          style="
+            top: ${Math.random() * 100}%;
+            left: ${Math.random() * 100}%;
+            animation-delay: ${Math.random() * 1.5}s;
+      "
+        ></div>`;
+      })
+      .join("");
+  </script> -->
+</html>
