@@ -37,5 +37,5 @@ only html, css, js
 ## 클래스 상호작용
 - `Game` 클래스는 `Ball`, `Paddle`, `Brick` 클래스의 인스턴스를 생성하고 관리.
 - `Ball` 클래스는 `Paddle` 및 `Brick` 클래스와 충돌 감지를 통해 상호작용.
-  - `Ball`이 `Paddle`에 충돌하면 반사되고, `Brick`에 충돌하면 벽돌이 파괴됨.
+- `Ball`이 `Paddle`에 충돌하면 반사되고, `Brick`에 충돌하면 벽돌이 파괴됨.
 - `Game` 클래스는 각 프레임마다 `Ball`, `Paddle`, `Brick`의 상태를 업데이트하고 화면에 그리는 역할.
