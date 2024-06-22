@@ -39,7 +39,8 @@ class Game {
 
       if (this.controller.leftPressed) this.moveLeft();
       if (this.controller.rightPressed) this.moveRight();
-      if (this.controller.spacePressed) this.shootBall();
+      if (this.controller.spacePressed && this.ball.status.fixed)
+        this.shootBall();
       if (collision.falldown) this.discountLife();
       if (collision.brick) this.writeLeftBricks();
       if (this.status.round === FINAL_ROUND && this.getLeftBricks() < 1)
