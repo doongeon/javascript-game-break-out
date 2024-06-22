@@ -27,6 +27,7 @@ const startBtn = document.getElementById("startBtn");
 const resumeBtn = document.getElementById("resumeBtn");
 const gameModal = document.getElementById("gameModal");
 const gameModalMessage = document.getElementById("gameModalMessage");
+const audio = document.getElementById("game-audio");
 
 const onClickPause = () => {
   if (!gameStart) return;
@@ -65,9 +66,18 @@ resumeBtn.addEventListener("click", onClickResume);
 
 const setGameStart = (gameStartState) => {
   gameStart = gameStartState;
+  setAudioState();
   renderModal();
   renderPauseBtn();
   renderStartBtn();
+};
+
+const setAudioState = () => {
+  if (gameStart) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
 };
 
 const renderModal = () => {
