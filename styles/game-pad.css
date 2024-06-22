@@ -2,7 +2,7 @@
 
 .game-pad {
   position: relative;
-  margin: auto;
+  margin: 30px auto;
   width: var(--game-display-width);
   padding: 80px 50px 40px 50px;
   display: flex;

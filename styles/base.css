@@ -1,15 +1,18 @@
 /* base.css */
 
 body {
-  width: 100vw;
-  height: 100vh;
-  background-color: gray;
+  background-color: rgb(83, 83, 83);
 }
 
 :root {
   --game-display-width: 400px;
   --game-display-height: 450px;
   --game-display-radius: 15px;
+  --border-radius: 5px;
+  --pad-padding: 80px 50px 40px 50px;
+}
+
+@media (min-width: 768px) {
 }
 
 .star {
