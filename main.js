@@ -2,19 +2,21 @@ let gameStart = false;
 let gamePause = false;
 let game = null;
 
-const stars = document.getElementById("stars");
-stars.innerHTML = [...Array(100)]
-  .map((__) => {
-    return `<div
-      class="star"
-      style="
-        top: ${Math.random() * 100}%;
-        left: ${Math.random() * 100}%;
-        animation-delay: ${Math.random() * 1.5}s;
-  "
-    ></div>`;
-  })
-  .join("");
+const renderStars = () => {
+  const stars = document.getElementById("stars");
+  stars.innerHTML = [...Array(100)]
+    .map((__) => {
+      return `<div
+        class="star"
+        style="
+          top: ${Math.random() * 100}%;
+          left: ${Math.random() * 100}%;
+          animation-delay: ${Math.random() * 1.5}s;
+    "
+      ></div>`;
+    })
+    .join("");
+};
 
 const canvas = document.getElementById("gameGui");
 canvas.width = CANVAS_WIDTH;
@@ -39,7 +41,6 @@ const onClickStart = () => {
   if (gameStart) return;
   setGameStart(true);
   game = new Game(context, (status) => {
-    console.log(status);
     setGameStart(false);
     if (status.clear) {
       gameModalMessage.innerText = "win!";
@@ -99,4 +100,5 @@ const render = () => {
   renderPauseBtn();
 };
 
+renderStars();
 render();
