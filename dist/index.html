@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>BREAK OUT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/game-pad.css" />
+    <link rel="stylesheet" href="styles/game-gui.css" />
+    <link rel="stylesheet" href="styles/game-modal.css" />
+    <link rel="stylesheet" href="styles/buttons.css" />
+    <script src="classes/Map.js"></script>
+    <script src="classes/Ball.js"></script>
+    <script src="classes/BeepSound.js"></script>
+    <script src="classes/Bricks.js"></script>
+    <script src="classes/CollisionDetector.js"></script>
+    <script src="classes/Constants.js"></script>
+    <script src="classes/Controller.js"></script>
+    <script src="classes/Game.js"></script>
+    <script src="classes/Paddle.js"></script>
+    <script src="classes/Stage.js"></script>
+  </head>
+  <body>
+    <audio id="game-audio" loop>
+      <source src="public/audio/megalovania.mp3" type="audio/mpeg" />
+    </audio>
+    <div class="game-pad">
+      <div class="canvas-container">
+        <div class="game-console">
+          <div class="game-status">
+            <div id="life"></div>
+            <div id="round"></div>
+            <div id="bricks"></div>
+          </div>
+        </div>
+        <canvas id="gameGui" class="game-gui"></canvas>
+        <div id="stars"></div>
+        <div id="gameModal" class="game-modal">
+          <div id="gameModalMessage" class="game-modal__msg">break brick</div>
+          <div class="game-modal__btn-wrap">
+            <div id="resumeBtn" class="game-modal__btn">resume</div>
+            <div id="startBtn" class="game-modal__btn">start</div>
+          </div>
+        </div>
+      </div>
+      <div class="buttons-wrap">
+        <div class="arrow-btn">
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+          <div class="arrow-btn-item"></div>
+        </div>
+        <div class="circle-btn">
+          <div class="circle-btn-item"></div>
+          <div class="circle-btn-item"></div>
+          <div class="circle-btn-item"></div>
+          <div class="circle-btn-item" id="pauseBtn">
+            <span>=</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+/* base.css */
+
+body {
+  background-color: rgb(83, 83, 83);
+}
+
+:root {
+  --game-display-width: 400px;
+  --game-display-height: 450px;
+  --game-display-radius: 15px;
+  --border-radius: 5px;
+  --pad-padding: 80px 50px 40px 50px;
+}
+
+@media (min-width: 768px) {
+}
+
+.star {
+  position: absolute;
+  background-color: #fff;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  animation: twinkling 1.5s infinite;
+  z-index: 1;
+}
+
+@keyframes twinkling {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
