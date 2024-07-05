@@ -11,10 +11,18 @@ class Controller {
   }
 
   keyDownHandler(e) {
+    if (e.code === "ArrowUp") {
+      e.preventDefault();
+    }
+    if (e.code === "ArrowDown") {
+      e.preventDefault();
+    }
     if (e.code === "ArrowRight") {
+      e.preventDefault();
       this.rightPressed = true;
     }
     if (e.code === "ArrowLeft") {
+      e.preventDefault();
       this.leftPressed = true;
     }
     if (e.code === "Space") {
