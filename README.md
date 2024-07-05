@@ -6,7 +6,7 @@
   
 only html, css, js
 
-[Click here to try](https://doongeon.github.io/javascript-game-break-out/)
+[Click here to try](https://d21775q9xjxwfc.cloudfront.net)
 
 </div>
 
