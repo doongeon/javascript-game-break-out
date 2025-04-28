@@ -6,7 +6,7 @@
   
 only html, css, js
 
-[Click here to try](https://js-break-out.s3.ap-northeast-2.amazonaws.com/index.html)
+[Click here to try](https://doongeon.github.io/javascript-game-break-out/)
 
 </div>
 
